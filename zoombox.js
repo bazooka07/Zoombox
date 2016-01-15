@@ -4,16 +4,16 @@ var zoombox_path = scr[scr.length-1].getAttribute("src").replace('zoombox.js',''
 (function($){
 
 var options = {
-    theme       : 'zoombox',      //available themes : zoombox,lightbox, prettyphoto, darkprettyphoto, simple
-    opacity     : 0.8,                  // Black overlay opacity
-    duration    : 800,                // Animation duration
-    animation   : true,             // Do we have to animate the box ?
-    width       : 600,                  // Default width
-    height      : 400,                  // Default height
-    gallery     : true,                 // Allow gallery thumb view
-    autoplay	: false,                // Autoplay for video
-    overflow	: false,               // Allow images bigger than screen ?
-    href	: function(elem) { return elem.attr('href'); }
+    theme       : 'zoombox',	//available themes : zoombox,lightbox, prettyphoto, darkprettyphoto, simple
+    opacity     : 0.8,			// Black overlay opacity
+    duration    : 800,			// Animation duration
+    animation   : true,			// Do we have to animate the box ?
+    width       : 600,			// Default width
+    height      : 400,			// Default height
+    gallery     : true,			// Allow gallery thumb view
+    autoplay	: false,		// Autoplay for video
+    overflow	: false,		// Allow images bigger than screen ?
+    href		: function(elem) { return elem.attr('href'); }
 }
 var images;         // Gallery Array [gallery name][link]
 var elem;           // HTML element currently used to display box
@@ -93,8 +93,8 @@ $.fn.zoombox = function(opts){
         var obj = this;
         var galleryRegExp =  /zgallery([0-9]+)/;
         var skipRegExp =  /zskip/;
-	// var gallery = galleryRegExp.exec($(this).attr("class"));
-	var gallery = ['foo', '0'];
+		// var gallery = galleryRegExp.exec($(this).attr("class"));
+		var gallery = ['foo', '0'];
         var skip = skipRegExp.exec($(this).attr("class"));
         var tmpimageset = false;
         if(gallery != null){
@@ -151,9 +151,7 @@ function load(){
 function build(){
     // We add the HTML Code on our page
     $('body').append(html);
-    $(window).keydown(function(event){
-        shortcut(event.which);
-    });
+    $(window).keydown(shortcut);
     $(window).resize(function(){
         resize();
     });
@@ -194,7 +192,7 @@ function gallery(){
             var imgSrc = zoombox_path+'img/video.png';
             var img = $('<img src="'+imgSrc+'" class="video gallery'+(i*1)+'"/>');
             var href = options.href(imageset[i]);
-		if(filtreImg.test(href)){
+			if(filtreImg.test(href)){
                imgSrc = href;
                img = $('<img src="'+imgSrc+'" class="gallery'+(i*1)+'"/>');
             }
@@ -548,17 +546,27 @@ function resize(){
 /**
  * Keyboard Shortcut
  **/
-function shortcut(key){
-    if(key == 37){
-        prev();
-    }
-    if(key == 39){
-        next();
-    }
-    if(key == 27){
-        close();
-    }
+var allowedKeys = [39, 32, 37, 27];
 
+function shortcut(event){
+	for (i=0, iMax=allowedKeys.length; i<iMax; i++) {
+		if (event.keyCode == allowedKeys[i]) {
+			event.preventDefault();
+			break;
+		}
+	}
+	switch (event.keyCode) {
+		case 39 :
+		case 32 :
+			next();
+			break;
+		case 37 :
+			prev();
+			break;
+		case 27 :
+			close();
+			break;
+	}
 }
 /**
  * Parse Width/Height of a link and insert it in the width and height variables
