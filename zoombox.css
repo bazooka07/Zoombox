@@ -50,6 +50,9 @@
 	-moz-opacity:0;
 	opacity:0;
 }
+#zoombox .zoombox_close, #zoombox .zoombox_title {
+	display: none;
+}
 #zoombox .zoombox_close,#zoombox .zoombox_next,#zoombox .zoombox_prev{
 	cursor:pointer;
 }
@@ -131,8 +134,8 @@
 	color:#FFF;
 	/*+placement:anchor-top-left -1px -22px;*/
 	position:absolute;
-	left: 0;
 	top: 0;
+	padding-left: 5px;
 	/*+text-shadow:1px 1px #000000;*/
 	-moz-text-shadow:1px 1px #000000;
 	-webkit-text-shadow:1px 1px #000000;
