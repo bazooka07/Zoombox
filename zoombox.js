@@ -498,9 +498,12 @@ function loadImg(img){
 			$("body").append('<div id="zoombox_loader"></div>');
 			$("#zoombox_loader").css("marginTop",scrollY());
 		}
-		$('#zoombox_loader').css({'background-position': '"'+i+'px 0"'});
-		i += 96;
-		if ( i>=0 ) { i = -1056; }
+		if ( i>=0 )
+			{ i = -1056; }
+		else {
+			i += 96;
+		}
+		$('#zoombox_loader').css({backgroundPosition: i+'px 0'});
 	}
 }
 
