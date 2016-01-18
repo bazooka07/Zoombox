@@ -12,13 +12,11 @@ var options = {
 	height      : 400,			// Default height
 	gallery     : true,			// Allow gallery thumb view
 	autoplay	: false,		// Autoplay for video
-	overflow	: false,		// Allow images bigger than screen ?
-	href		: function(elem) { return elem.attr('href'); }
+	overflow	: false			// Allow images bigger than screen ?
 }
 var images;         // Gallery Array [gallery name][link]
 var elem;           // HTML element currently used to display box
 var isOpen = false; // Zoombox already opened ?
-var link;           // Shortcut for the link
 var width, height;	// size of .zoombox_container
 var padWidth = 30, padHeight = 10;
 var timer;          // Timing for img loading
@@ -67,11 +65,10 @@ $.zoombox.options = options;
 $.zoombox.close = function() {
 	close();
 }
-$.zoombox.open = function(tmplink,opts){
+$.zoombox.open = function(tmplink, opts){
 	elem = null;
-	link = tmplink;
 	options = $.extend({},$.zoombox.options,opts);
-	load();
+	load(tmpLink);
 }
 $.zoombox.html = function(cont,opts){
 	options = $.extend({},$.zoombox.options,opts);
@@ -120,9 +117,8 @@ $.fn.zoombox = function(opts){
 				elem = $(obj);
 			}
 			imageset = tmpimageset;
-			link = options.href(elem);
 			position = pos;
-			load();
+			load(getLink(elem));
 			return false;
 		});
 	});
@@ -183,6 +179,17 @@ function changeSlide(e, css) {
 			}
 		}
 	}
+}
+
+function getLink(element) {
+	var result = null;
+	if (element.attr('href') !== undefined)
+		result = element.attr('href');
+	else {
+		if (element.attr('src') !== undefined)
+			result = element.attr('src');
+	}
+	return result;
 }
 
 /**
@@ -418,7 +425,7 @@ function close(){
 /**
  * Set the HTML Content of the box
  * */
-function setContent(){
+function setContent(link){
 	var content;
 	var url = link;
 	type = 'multimedia';
@@ -490,7 +497,7 @@ function loadImg(img){
 		$('#zoombox_loader').remove();
 		imgWidth = img.width;
 		imgHeight = img.height;
-		var result = setContent();
+		var result = setContent(img.src);
 		open(result);
 	} else {
 		// On anime le loader
@@ -510,16 +517,27 @@ function loadImg(img){
 /**
  * Load the content (with or without loader) and call open()
  * */
-function load(){
-	if(state=='closed') isOpen = false;
+function load(link){
+	if (state=='closed') isOpen = false;
 	state = 'load';
 	setDim();
-	if(filtreImg.test(link)){
+	if (filtreImg.test(link)) {
+		var src = link;
+		var regEx1 = /\.tb(\.(?:jpg|jpeg|png|gif))$/i;
+		var regEx2 = /(staticflickr\.com\/.+)\w(\.(?:jpg|jpeg|png|gif))$/i;
+		if (regEx1.test(link)) {
+			src = link.replace(regEx1, '$1');
+		} else {
+			if (regEx2.test(link)) {
+				// change b for other sizes image. Look at flickr.com
+				src = link.replace(regEx2, '$1b$2');
+			}
+		}
 		img=new Image();
-		img.src=link;
-		timer = window.setInterval(function(){loadImg(img);}, 100);
-	}else{
-		var result = setContent();
+		img.src = src;
+		timer = window.setInterval(function(){loadImg(img);}, 150);
+	} else {
+		var result = setContent(link);
 		open(result);
 	}
 }
@@ -529,8 +547,8 @@ function gotoSlide(i){
 	if (imageset) {
 		position = i;
 		elem = imageset[i];
-		link = options.href(elem);
-		load();
+		link = getLink(elem);
+		load(link);
 	}
 	return false;
 }
