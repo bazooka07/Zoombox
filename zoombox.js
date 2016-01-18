@@ -19,12 +19,12 @@ var images;         // Gallery Array [gallery name][link]
 var elem;           // HTML element currently used to display box
 var isOpen = false; // Zoombox already opened ?
 var link;           // Shortcut for the link
-var width, height;
-var padx = 10, pady = 10;
+var width, height;	// size of .zoombox_container
+var padWidth = 30, padHeight = 10;
 var timer;          // Timing for img loading
 var i = 0;          // iteration variable
-/* var content;        // The content of the box */
 var type = 'multimedia'; // Content type
+var imgWidth, imgHeight;
 var position = false;
 var imageset = false;
 var state = 'closed';
@@ -47,16 +47,17 @@ var html = '\
 		<div class="zoombox_gallery"></div>\
 	</div>';
 // Regular expressions needed for the content
-var filtreImg=                  /(\.jpg)|(\.jpeg)|(\.bmp)|(\.gif)|(\.png)/i;
-var filtreMP3=			/(\.mp3)/i;
-var filtreFLV=			/(\.flv)/i;
-var filtreSWF=			/(\.swf)/i;
-var filtreQuicktime=	/(\.mov)|(\.mp4)/i;
-var filtreWMV=			/(\.wmv)|(\.avi)/i;
-var filtreDailymotion=	/(http:\/\/www.dailymotion)|(http:\/\/dailymotion)/i;
-var filtreVimeo=		/(http:\/\/www.vimeo)|(http:\/\/vimeo)/i;
-var filtreYoutube=		/(youtube\.)/i;
-var filtreKoreus=		/(http:\/\/www\.koreus)|(http:\/\/koreus)/i;
+var filtreImg			= /(\.jpg)|(\.jpeg)|(\.bmp)|(\.gif)|(\.png)/i;
+var filtreMP3			= /(\.mp3)/i;
+var filtreFLV			= /(\.flv)/i;
+var filtreSWF			= /(\.swf)/i;
+var filtreQuicktime		= /(\.mov)|(\.mp4)/i;
+var filtreWMV			= /(\.wmv)|(\.avi)/i;
+var filtreDailymotion	= /(http:\/\/www.dailymotion)|(http:\/\/dailymotion)/i;
+var filtreVimeo			= /(http:\/\/www.vimeo)|(http:\/\/vimeo)/i;
+var filtreYoutube		= /(youtube\.)/i;
+var filtreKoreus		= /(http:\/\/www\.koreus)|(http:\/\/koreus)/i;
+
 var galleryLoaded = 0;
 
 $.zoombox = function(el,options) {
@@ -92,8 +93,8 @@ $.fn.zoombox = function(opts){
 			return false;
 		}
 		var obj = this;
-		var galleryRegExp =  /zgallery([0-9]+)/;
-		var skipRegExp =  /zskip/;
+		var galleryRegExp = /zbuildGallery([0-9]+)/;
+		var skipRegExp = /zskip/;
 		// var gallery = galleryRegExp.exec($(this).attr("class"));
 		var gallery = ['foo', '0'];
 		var skip = skipRegExp.exec($(this).attr("class"));
@@ -128,25 +129,6 @@ $.fn.zoombox = function(opts){
 }
 
 /**
- * Load the content (with or without loader) and call open()
- * */
-function load(){
-	if(state=='closed') isOpen = false;
-	state = 'load';
-	setDim();
-	if(filtreImg.test(link)){
-		img=new Image();
-		img.src=link;
-		$("body").append('<div id="zoombox_loader"></div>');
-		$("#zoombox_loader").css("marginTop",scrollY());
-		timer = window.setInterval(function(){loadImg(img);}, 100);
-	}else{
-		var result = setContent();
-		open(result);
-	}
-}
-
-/**
  * Build the HTML Structure of the box
  * */
 function build(){
@@ -154,7 +136,7 @@ function build(){
 	$('body').append(html);
 	$(window).keydown(shortcut);
 	$(window).resize(function(){
-		resize();
+		resize(true);
 	});
 	$('#zoombox .zoombox_mask').hide();
 	// We add a specific class to define the box theme
@@ -175,22 +157,48 @@ function build(){
 			prev();
 		});
 	}
-	padx = $('#zoombox .zoombox_container').outerWidth() - $('#zoombox .zoombox_content').outerWidth();
-	pady = $('#zoombox .zoombox_container').outerHeight() - $('#zoombox .zoombox_content').outerHeight();
+	padWidth = $('#zoombox .zoombox_container').outerWidth() - $('#zoombox .zoombox_content').outerWidth();
+	padHeight = $('#zoombox .zoombox_container').outerHeight() - $('#zoombox .zoombox_content').outerHeight();
+}
+
+function changeSlide(e, css) {
+	if($('#zoombox .zoombox_gallery img').length > 0){
+		$('#zoombox .zoombox_gallery img').removeClass('current');
+		$('#zoombox .zoombox_gallery img:eq('+position+')').addClass('current');
+		var	width1 = $('#zoombox .zoombox_gallery div').width(),
+			width2 = $('#zoombox .zoombox_gallery').width();
+		if( width1 > width2){
+			var center = parseInt(width2 / 2);
+			var left = $('#zoombox .zoombox_gallery img.current').data('left');
+			if (left > center) {
+				 // 2 negative values
+				var min = width2 - width1;
+				var offset = center - left;
+				$('#zoombox .zoombox_gallery div').animate({left: Math.max(min, offset)}, options.duration);
+			} else {
+				if ($('#zoombox .zoombox_gallery div').offset().left < 0) {
+					// reset
+					$('#zoombox .zoombox_gallery div').animate({left: 0}, options.duration);
+				}
+			}
+		}
+	}
 }
 
 /**
 *   Gallery System (with slider if too much images)
 */
-function gallery(){
-	var loaded = 0;
-	var width = 0;
-	var contentWidth = 0;
+function buildGallery(){
 	if(options.gallery){
+
 		if(imageset === false){
 			$('#zoombox .zoombox_gallery').remove();
 			return false;
 		}
+
+		var	loaded = 0,
+			width = 0,
+			contentWidth = 0;
 		for(var i in imageset){
 			var imgSrc = zoombox_path+'img/video.png';
 			var img = $('<img src="'+imgSrc+'" class="video gallery'+(i*1)+'"/>');
@@ -233,51 +241,8 @@ function gallery(){
 		$('#zoombox .zoombox_gallery').show().animate({bottom:0},options.duration);
 	}
 
-	$('#zoombox').bind('change',function(e,css){
-		if($('#zoombox .zoombox_gallery div').width() < $('#zoombox .zoombox_gallery').width){
-			return true;
-		}
-		var d = 0;
-		var center = 0;
-		if(css != null){
-			d = options.duration;
-			center = css.width / 2;
-		}else{
-			center = $('#zoombox .zoombox_gallery').width()/2;
-		}
-		var decal = - $('#zoombox .zoombox_gallery img.current').data('left') + $('#zoombox .zoombox_gallery img.current').width() / 2;
-		var left = decal + center;
-		if(left < center * 2 - $('#zoombox .zoombox_gallery div').width() ){
-			left = center * 2 - $('#zoombox .zoombox_gallery div').width();
-		}
-		if(left > 0){
-			left = 0;
-		}
-		$('#zoombox .zoombox_gallery div').animate({left:left},d);
-	});
+	$('#zoombox').bind('change', changeSlide);
 
-}
-
-function overflow_check() {
-	if (options.overflow === false) {
-		var
-			ratio = width / height,
-			containerW = $('#zoombox .zoombox_container').width(),
-			containerH = $('#zoombox .zoombox_container').height(),
-			limit = windowW() - 2;
-		if(containerW > limit){
-			width -= containerW - limit;
-			height = Math.round(width / ratio);
-		}
-		limit = windowH() - 2;
-		if (options.gallery) {
-			limit -= $('.zoombox_gallery').outerHeight();
-		}
-		if(containerH > limit){
-			height -= containerH - limit;
-			width = Math.round(height * ratio);
-		}
-	}
 }
 
 /**
@@ -296,7 +261,12 @@ function open(content){
 
 	// If it's an image we load the content now (to get a good animation)
 	if(type=='img' && options.animation == true){
-		$('#zoombox .zoombox_content').append(content);
+		$('#zoombox .zoombox_container').css({backgroundColor: 'transparent', opacity: '0.2'});
+		resize();
+		if (options.animation == true) {
+			$('#zoombox .zoombox_content').append(content);
+		}
+		$('#zoombox').trigger('change',css);
 	}
 
 	if (isOpen === false) {
@@ -305,33 +275,33 @@ function open(content){
 		if(elem != null && elem.find('img').length != 0){
 			var min = elem.find('img');
 			$('#zoombox .zoombox_container').css({
-				width : min.width(),
-				height: min.height(),
-				top : min.offset().top,
-				left : min.offset().left,
-				opacity:0,
+				width	: min.width(),
+				height	: min.height(),
+				top		: min.offset().top,
+				left	: min.offset().left,
+				opacity	: 0,
 				marginTop : min.css('marginTop')
 			});
 		}else if(elem != null){
 			$('#zoombox .zoombox_container').css({
-			   width:   elem.width(),
-			   height:  elem.height(),
-			   top:elem.offset().top,
-			   left:elem.offset().left
+			   width	: elem.width(),
+			   height	: elem.height(),
+			   top		: elem.offset().top,
+			   left		: elem.offset().left
 			});
 		}else {
 			$('#zoombox .zoombox_container').css({
-				width: 100,
-				height: 100,
-				top:windowH()/2-50,
-				left:windowW()/2-50
+				width	: 100,
+				height	: 100,
+				top		: windowH()/2-50,
+				left	: windowW()/2-50
 			});
 		}
 	} else {
 		$('#zoombox .zoombox_title').empty();
 	}
+
 	// Final position/size of the box after the animation
-	// overflow_check();
 	var galleryH = (options.gallery) ? $('#zoombox .zoombox_gallery').outerHeight() : 0;
 	var css = {
 		width	: width,
@@ -343,15 +313,19 @@ function open(content){
 	};
 
 	// Trigger the change event
-	// $('#zoombox').trigger('change',css);
+	//
 
 	// Do we animate or not ?
 	if(options.animation == true){
 		$('#zoombox .zoombox_title').hide();
 		$('#zoombox .zoombox_close').hide();
-		$('#zoombox .zoombox_container').animate(css,options.duration,function(){
+		$('#zoombox .zoombox_container').animate(css, options.duration, function(){
 			if(type == 'img'){
-				$('#zoombox .zoombox_content img').css('opacity',0).fadeTo(300,1);
+				// $('#zoombox .zoombox_content img').css('opacity',0).fadeTo(300,1);
+				$('#zoombox .zoombox_container').css({backgroundColor: ''});
+				if(!isOpen){
+					buildGallery();
+				}
 			} else {
 				$('#zoombox .zoombox_content').append(content);
 			}
@@ -362,18 +336,19 @@ function open(content){
 			$('#zoombox .zoombox_title').fadeIn(300);
 			$('#zoombox .zoombox_close').fadeIn(300);
 			state = 'opened';
-			if(!isOpen){
-				gallery();
-			}
 			isOpen = true;
 		});
 		$('#zoombox .zoombox_mask').fadeTo(200,options.opacity);
 	}else{
-		if (type != 'img') {
+		if (type == 'img') {
+			if(!isOpen){
+				buildGallery();
+			}
+		} else {
 			$('#zoombox .zoombox_content').append(content);
 		}
 		// We add a title if we find one on the link
-		if(elem != null && elem.attr('title')){
+		if (elem != null && elem.attr('title')) {
 			$('#zoombox .zoombox_title').append(elem.attr('title'));
 		}
 		$('#zoombox .zoombox_close').show();
@@ -381,9 +356,6 @@ function open(content){
 		$('#zoombox .zoombox_container').css(css);
 		$('#zoombox .zoombox_mask').show();
 		$('#zoombox .zoombox_mask').css('opacity',options.opacity);
-		if(!isOpen){
-			gallery();
-		}
 		isOpen = true;
 		state = 'opened';
 	}
@@ -516,30 +488,36 @@ function loadImg(img){
 	if(img.complete){
 		window.clearInterval(timer);
 		$('#zoombox_loader').remove();
-		i=0;
-		var ratio = img.width / img.height;
-		var h = img.height;
-		var w = img.width;
-		var galleryHeight =  (options.gallery) ? $('#zoombox .zoombox_gallery').outerHeight() : 0;
-		var max = windowH() - pady - galleryHeight - 4;
-		if (h > max) {
-			h = max;
-			w = Math.round(h * ratio);
-		}
-		max = windowW() - padx - 4
-		if (w > max) {
-			w = max;
-			h = Math.round(w / ratio);
-		}
-		height = h + pady;
-		width = w + padx;
+		imgWidth = img.width;
+		imgHeight = img.height;
 		var result = setContent();
 		open(result);
 	} else {
 		// On anime le loader
-		$('#zoombox_loader').css({'background-position': "0px "+i+"px"});
-		i += 40;
-		if ( i>=0 ) {i=-440;}
+		if ($('#zoombox_loader').length == 0) {
+			$("body").append('<div id="zoombox_loader"></div>');
+			$("#zoombox_loader").css("marginTop",scrollY());
+		}
+		$('#zoombox_loader').css({'background-position': '"'+i+'px 0"'});
+		i += 96;
+		if ( i>=0 ) { i = -1056; }
+	}
+}
+
+/**
+ * Load the content (with or without loader) and call open()
+ * */
+function load(){
+	if(state=='closed') isOpen = false;
+	state = 'load';
+	setDim();
+	if(filtreImg.test(link)){
+		img=new Image();
+		img.src=link;
+		timer = window.setInterval(function(){loadImg(img);}, 100);
+	}else{
+		var result = setContent();
+		open(result);
 	}
 }
 
@@ -547,28 +525,28 @@ function gotoSlide(i){
 	if(state != 'opened'){ return false; }
 	if (imageset) {
 		position = i;
-		elem = imageset[position];
+		elem = imageset[i];
 		link = options.href(elem);
-		if($('#zoombox .zoombox_gallery img').length > 0){
-			$('#zoombox .zoombox_gallery img').removeClass('current');
-			$('#zoombox .zoombox_gallery img:eq('+i+')').addClass('current');
-		}
 		load();
 	}
 	return false;
 }
 
 function next(){
-	i = position+1;
-	if(i  > imageset.length-1){
+	var i = position;
+	if (i < imageset.length-1) {
+		i += 1;
+	} else {
 		i = 0;
 	}
 	gotoSlide(i);
 }
 
 function prev(){
-	i = position-1;
-	if(i < 0){
+	var i = position;
+	if (i > 0) {
+		i -= 1;
+	} else {
 		i = imageset.length-1;
 	}
 	gotoSlide(i);
@@ -580,35 +558,68 @@ function prev(){
 /**
  * Resize
  **/
-function resize(){
-	$('#zoombox .zoombox_container').css({
-		top : (windowH() - $('#zoombox .zoombox_container').outerHeight(true)) / 2,
-		left : (windowW() - $('#zoombox .zoombox_container').outerWidth(true)) / 2
-	});
+function resize(repaint){
+	if (type == 'img') {
+		w = imgWidth;
+		h = imgHeight;
+		var ratio = w / h;
+		var galleryHeight =  (options.gallery) ? $('#zoombox .zoombox_gallery').outerHeight() : 0;
+		var max = windowH() - padHeight - galleryHeight - 4;
+		if (h > max) {
+			h = max;
+			w = Math.round(h * ratio);
+		}
+		max = windowW() - padWidth - 4
+		if (w > max) {
+			w = max;
+			h = Math.round(w / ratio);
+		}
+		height = h + padHeight;
+		width = w + padWidth;
+	} else {
+		var a=1;
+	}
+ 	if (type != 'img' || repaint === true) {
+		var css = {
+			width: width,
+			height: height,
+			left	: (windowW() - width) / 2,
+			top		: (windowH() - height - galleryHeight) / 2
+		}
+		$('#zoombox .zoombox_container').css(css);
+/*	} else {
+		$('#zoombox .zoombox_container').css({height: height});
+* */
+	}
 }
 /**
  * Keyboard Shortcut
  **/
-var allowedKeys = [39, 32, 37, 27];
+var allowedKeys = [39, 32, 37, 36, 35, 27];
 
 function shortcut(event){
 	for (i=0, iMax=allowedKeys.length; i<iMax; i++) {
 		if (event.keyCode == allowedKeys[i]) {
 			event.preventDefault();
+			switch (event.keyCode) {
+				case 39 :
+				case 32 :
+					next();
+					break;
+				case 37 :
+					prev();
+					break;
+				case 27 :
+					close();
+					break;
+				case 36 :
+					gotoSlide(0);
+					break;
+				case 35 :
+					gotoSlide(imageset.length-1);
+			}
 			break;
 		}
-	}
-	switch (event.keyCode) {
-		case 39 :
-		case 32 :
-			next();
-			break;
-		case 37 :
-			prev();
-			break;
-		case 27 :
-			close();
-			break;
 	}
 }
 /**
@@ -639,24 +650,14 @@ function setDim(){
 * Return the window height
 * */
 function windowH(){
-	if (window.innerHeight) {
-		return window.innerHeight;
-	}
-	else {
-		return $(window).height();
-	}
+	return $(window).height();
 }
 
 /**
  * Return the window width
  * */
 function windowW(){
-	if (window.innerWidth) {
-		return window.innerWidth;
-	}
-	else {
-		return $(window).width();
-	}
+	return $(window).width();
 }
 
 /**

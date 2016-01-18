@@ -1,0 +1,37 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+
+<head>
+	<title>sans titre</title>
+	<meta http-equiv="content-type" content="text/html;charset=utf-8" />
+	<style type="text/css">
+		#zoombox_loader { height: 200px; border: 1px red; }
+	</style>
+	<link type="text/css" href="zoombox.css" rel="stylesheet" media="screen" />
+</head>
+<body>
+	<div id="zoombox" class="zoombox">
+		<div id="zoombox_loader">
+			Coucou, c'est nous !!
+		</div>
+	</div>
+	<script type="text/javascript">
+		var i = 0;
+		var timer = window.setInterval(
+			function(){
+				var elmt = document.getElementById('zoombox_loader');
+				if (elmt) {
+					if (i >= 0) {
+						i = -360;
+					} else {
+						i += 30;
+					}
+				}
+			},
+			100
+		);
+	</script>
+</body>
+
+</html>
