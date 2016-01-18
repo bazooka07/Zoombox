@@ -20,7 +20,7 @@ var isOpen = false; // Zoombox already opened ?
 var width, height;	// size of .zoombox_container
 var padWidth = 30, padHeight = 10; // used for computing size of .zoombox_container
 var timer;          // Timing for img loading
-var i = 0;          // iteration variable for loading.png
+var loadingStep = 0;          // iteration variable for loading.png
 var type = 'multimedia'; // Content type
 var imgWidth, imgHeight;
 var position = false;
@@ -209,7 +209,7 @@ function buildGallery(){
 		for(var i in imageset){
 			var imgSrc = zoombox_path+'img/video.png';
 			var img = $('<img src="'+imgSrc+'" class="video gallery'+(i*1)+'"/>');
-			var href = options.href(imageset[i]);
+			var href = getLink(imageset[i]);
 			if(filtreImg.test(href)){
 			   imgSrc = href;
 			   img = $('<img src="'+imgSrc+'" class="gallery'+(i*1)+'"/>');
@@ -505,12 +505,12 @@ function loadImg(img){
 			$("body").append('<div id="zoombox_loader"></div>');
 			$("#zoombox_loader").css("marginTop",scrollY());
 		}
-		if ( i>=0 )
-			{ i = -1056; }
+		if ( loadingStep >= 0 )
+			{ loadingStep = -1056; }
 		else {
-			i += 96;
+			loadingStep += 96;
 		}
-		$('#zoombox_loader').css({backgroundPosition: i+'px 0'});
+		$('#zoombox_loader').css({backgroundPosition: loadingStep + 'px 0'});
 	}
 }
 
