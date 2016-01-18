@@ -18,9 +18,9 @@ var images;         // Gallery Array [gallery name][link]
 var elem;           // HTML element currently used to display box
 var isOpen = false; // Zoombox already opened ?
 var width, height;	// size of .zoombox_container
-var padWidth = 30, padHeight = 10;
+var padWidth = 30, padHeight = 10; // used for computing size of .zoombox_container
 var timer;          // Timing for img loading
-var i = 0;          // iteration variable
+var i = 0;          // iteration variable for loading.png
 var type = 'multimedia'; // Content type
 var imgWidth, imgHeight;
 var position = false;
