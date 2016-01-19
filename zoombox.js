@@ -42,7 +42,8 @@ var html = '\
 			<div class="zoombox_prev"></div>\
 			<div class="zoombox_close"></div>\
 		</div>\
-		<div class="zoombox_gallery"></div>\
+		<div class="zoombox_gallery">\
+		</div>\
 	</div>';
 // Regular expressions needed for the content
 var filtreImg			= /(\.jpg)|(\.jpeg)|(\.bmp)|(\.gif)|(\.png)/i;
@@ -157,7 +158,7 @@ function build(){
 	padHeight = $('#zoombox .zoombox_container').outerHeight() - $('#zoombox .zoombox_content').outerHeight();
 }
 
-function changeSlide(e, css) {
+function changeSlide(event) {
 	if($('#zoombox .zoombox_gallery img').length > 0){
 		$('#zoombox .zoombox_gallery img').removeClass('current');
 		$('#zoombox .zoombox_gallery img:eq('+position+')').addClass('current');
@@ -165,7 +166,7 @@ function changeSlide(e, css) {
 			width2 = $('#zoombox .zoombox_gallery').width();
 		if( width1 > width2){
 			var center = parseInt(width2 / 2);
-			var left = $('#zoombox .zoombox_gallery img.current').data('left');
+			var left = parseInt($('#zoombox .zoombox_gallery img.current').position().left);
 			if (left > center) {
 				 // 2 negative values
 				var min = width2 - width1;
@@ -203,6 +204,30 @@ function buildGallery(){
 			return false;
 		}
 
+		imageset.forEach(function (elt, index, array1) {
+			var imgSrc = getLink(imageset[index]);
+			if(filtreImg.test(imgSrc)){
+			   img = $('<img id="' + index + '" src="' + imgSrc + '" class="gallery' + index + '" />');
+			} else {
+				imgSrc = zoombox_path+'img/video.png';
+				img = $('<img id="' + index + '" src="' + imgSrc + '" class="video gallery' + index + '" />');
+			}
+			img.appendTo('#zoombox .zoombox_gallery');
+
+		});
+
+		var div = $('<div>').css({position: 'absolute', left: 0, top: 0, whiteSpace: 'nowrap'});
+		$('#zoombox .zoombox_gallery').wrapInner(div);
+
+		$('#zoombox .zoombox_gallery img[id="'+position+'"]').addClass('current');
+		$('#zoombox .zoombox_gallery').click(function (event) {
+			var img = event.target;
+			if (img.tagName == 'IMG') {
+				event.preventDefault();
+				gotoSlide(img.getAttribute('id'));
+			}
+		});
+		/*
 		var	loaded = 0,
 			width = 0,
 			contentWidth = 0;
@@ -245,6 +270,7 @@ function buildGallery(){
 					}
 				});
 		}
+		* */
 		$('#zoombox .zoombox_gallery').show().animate({bottom:0},options.duration);
 	}
 
@@ -542,11 +568,13 @@ function load(link){
 	}
 }
 
-function gotoSlide(i){
+function gotoSlide(index){
 	if(state != 'opened'){ return false; }
 	if (imageset) {
-		position = i;
-		elem = imageset[i];
+		position = index;
+		elem = imageset[index];
+		$('#zoombox .zoombox_gallery img').removeClass('current');
+		$('#zoombox .zoombox_gallery img[id="'+index+'"]').removeClass('current');
 		link = getLink(elem);
 		load(link);
 	}
