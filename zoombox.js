@@ -88,7 +88,6 @@ $.fn.zoombox = function(opts){
 		if($.browser && $.browser.msie && $.browser.version < 7 && !window.XMLHttpRequest){
 			return false;
 		}
-		var obj = this;
 		var galleryRegExp = /zbuildGallery([0-9]+)/;
 		var skipRegExp = /zskip/;
 		// var gallery = galleryRegExp.exec($(this).attr("class"));
@@ -114,12 +113,16 @@ $.fn.zoombox = function(opts){
 					elem = images[gallery[1]][pos+1];
 				}
 			} else {
-				elem = $(obj);
+				elem = $(this);
 			}
 			imageset = tmpimageset;
 			position = pos;
-			if (options.fullscreen && (this.tagName == 'IMG')) {
+			if (options.fullscreen && ((this.tagName == 'IMG') || $(this).find('img').length > 0)) {
 				setFullscreen();
+			} else {
+				if ($('body #zoombox').length == 0) {
+					$('body').append('<div id="zoombox" />');
+				}
 			}
 			load(getLink(elem));
 			return false;
@@ -166,18 +169,15 @@ function setFullscreen() {
 }
 
 function exitFullscreen() {
-	if (true) {
-	    if (document.exitFullscreen) {
-			document.exitFullscreen();
-	    } else if (document.webkitExitFullscreen) {
-			document.webkitExitFullscreen();
-	    } else if (document.mozCancelFullScreen) {
-			document.mozCancelFullScreen();
-	    } else if (document.msExitFullscreen) {
-			document.msExitFullscreen();
-	    }
-	    // fullscreenStatus = false;
-	}
+    if (document.exitFullscreen) {
+		document.exitFullscreen();
+    } else if (document.webkitExitFullscreen) {
+		document.webkitExitFullscreen();
+    } else if (document.mozCancelFullScreen) {
+		document.mozCancelFullScreen();
+    } else if (document.msExitFullscreen) {
+		document.msExitFullscreen();
+    }
 }
 
 /**
@@ -349,7 +349,11 @@ function open(content){
 
 	// If it's an image we load the content now (to get a good animation)
 	if(type=='img' && options.animation == true){
-		$('#zoombox .zoombox_container').css({backgroundColor: 'transparent', opacity: '0.2'});
+		$('#zoombox .zoombox_container').css({
+			backgroundColor: 'transparent',
+			opacity: '0.2',
+			boxShadow: 'none'
+		});
 		resize();
 		if (options.animation == true) {
 			$('#zoombox .zoombox_content').append(content);
@@ -394,8 +398,8 @@ function open(content){
 	var css = {
 		width	: width,
 		height	: height,
-		left	: (windowW() - width) / 2,
-		top		: (windowH() - height - galleryH) / 2,
+		left	: parseInt((windowW() - width) / 2),
+		top		: parseInt((windowH() - height - galleryH) / 2),
 		marginTop : scrollY(),
 		opacity	: 1
 	};
@@ -758,6 +762,7 @@ function setDim(){
 * */
 function windowH(){
 	return $(window).height();
+	//return window.innerHeight;
 }
 
 /**
@@ -765,6 +770,8 @@ function windowH(){
  * */
 function windowW(){
 	return $(window).width();
+	// window.innerWidth ne prend pas en compte le scrollbar vertical
+	// return window.innerWidth;
 }
 
 /**

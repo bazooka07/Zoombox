@@ -1,0 +1,109 @@
+
+<!DOCTYPE html>
+<html lang="fr">
+  <head>
+    <meta charset="utf-8">
+    <title>Zoombox</title>
+	<base href="http://grafikart.github.io/Zoombox/" />
+        <!-- Le HTML5 shim, for IE6-8 support of HTML elements -->
+    <!--[if lt IE 9]>
+      <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link href='http://fonts.googleapis.com/css?family=PT+Sans|Kreon' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" type="text/css" href="http://jonathan-boyer.fr/css/style.css" />
+    <link rel="stylesheet" type="text/css" href="zoombox/zoombox.css" />
+  </head>
+
+
+  <body>
+
+    <div id="root">
+      <header class="header">
+        <a href="http://jonathan-boyer.fr/" class="logo">
+          <img src="http://jonathan-boyer.fr/img/logo.png" alt="" />        </a>
+        <nav>
+          <a href="http://jonathan-boyer.fr/" class="">Accueil</a>
+          <a href="http://jonathan-boyer.fr/portfolio" class="">Portfolio</a>
+          <a href="http://jonathan-boyer.fr/projets" class="active">Projets</a>
+          <a href="http://jonathan-boyer.fr/competences" class="">Compétences</a>
+          <a href="http://jonathan-boyer.fr/culture" class="">Culture</a>
+          <a href="http://jonathan-boyer.fr/contact" class="">Contact</a>
+        </nav>
+      </header>
+
+      <h1>Zoombox</h1>
+      <span class="subtitle">Another jquery lightbox</span>
+
+      <nav class="secondary">
+        <a href="index.html" class="active">Home</a>
+        <a href="howto.html">How to use</a>
+        <a href="api.html">API &amp; Options</a>
+        <a href="faq.html">FAQ</a>
+      </nav>
+
+      <div class="grid9">
+        <h2>What the fuck is Zoombox ?</h2>
+        <p>Zoombox is an easy to use jquery modul that allows you to display images, html content and multi media content with a "lightbox" that floats over your web page.</p>
+        <p><strong>Quick example : </strong></p>
+            <a class="zoombox zgallery1" title="This is a racoon" href="img/ratons/raton1.jpg"><img src="img/ratons/min_raton1.jpg"/></a>
+            &nbsp; &nbsp;
+            <a class="zoombox zgallery1" title="This is a racoon" href="img/ratons/raton2.jpg"><img src="img/ratons/min_raton2.jpg"/></a>
+            &nbsp; &nbsp;
+            <a class="zoombox zgallery1" title="This is a racoon" href="img/ratons/raton3.jpg"><img src="img/ratons/min_raton3.jpg"/></a>
+            &nbsp; &nbsp;
+            <a class="zoombox zgallery1" title="This is a racoon" href="img/ratons/raton4.jpg"><img src="img/ratons/min_raton4.jpg"/></a>
+            &nbsp; &nbsp;
+        <p>
+      </div>
+      <section class="grid3 last buttons">
+        <a href="http://github.com/Grafikart/Zoombox/zipball/master">Télécharger<em> le plugin</em></a>
+        <a href="http://github.com/Grafikart/Zoombox" class="alt"><em>Voir les</em> sources</a>
+      </section>
+      <div class="grid6">
+        <h2>Features</h2>
+        <ul>
+            <li>Can display <strong>all kind of links</strong> : Images, Flash animations, Youtube videos, Dailymotion videos, Iframe, HTML Content
+            <li><strong>Everything is customizable</strong>, you can create new themes using CSS
+            <li>You can <strong>group</strong> your link and make galleries
+            <li><strong>Standalone version</strong>, you can use zoombox as a modalbox : <br/> $.zoombox.html('I can use this plugin to display modal boxes !');
+            <li><strong>Keyboard shortcuts</strong> are now available for galleries (try pressing the arrow keys :)), you can also close the box using Escape key.
+        </ul>
+      </div>
+      <div class="grid4" style="float:right;">
+        <h2>More Examples</h2>
+        <ul>
+            <li><strong>Multimédia contents :</strong><br/>
+                &nbsp; &nbsp; <a href="http://www.youtube.com/watch?v=8oejjWGFs6o" title="Hey this is youtube !" class="zoombox">Youtube</a><br/>
+                &nbsp; &nbsp; <a href="http://www.dailymotion.com/JojoRatonLaveur/video/x1xhl1_jojodemarrages2diabolos_creation" title="Dailymotion now" class="zoombox">Dailymotion</a><br/>
+                &nbsp; &nbsp; <a href="http://vimeo.com/752979" title="We all like vimeo !" class="zoombox">Vimeo</a><br/>
+                &nbsp; &nbsp; <a href="img/video.flv" title="" class="zoombox w500 h400">FLV</a><br/>
+                &nbsp; &nbsp; <a href="img/video.mp4" title="" class="zoombox w450 h375">MP4/Mov</a><br/>
+
+
+            <li><strong><a title="This is an Inception ! zoombox inside a zoombox inside a zoombox" href="http://grafikart.fr/zoombox" class="zoombox">Iframe</a></strong>
+            <li><strong><a href="#" onclick="$.zoombox.html('<strong>Hi !</strong><p>This is a HTML content !</p>',{theme:'prettyphoto',width:600,height:50}); return false;">HTML Content</a></strong>
+            <li><strong><a href="#" onclick="$.zoombox.open('img/ratons/raton1.jpg',{theme:'prettyphoto',animation:false}); return false;">No animation</a></strong>
+            <li>
+                <strong>Build in Themes : </strong><br/>
+                &nbsp; &nbsp; <a title="I like prettyphoto" href="img/ratons/raton1.jpg" onclick="$.zoombox.options.theme = 'prettyphoto';" class="zoombox">PrettyPhoto Theme</a><br/>
+                &nbsp; &nbsp; <a title="I like prettyphoto" href="img/ratons/raton2.jpg" onclick="$.zoombox.options.theme = 'darkprettyphoto';" class="zoombox">Dark PrettyPhoto Theme</a><br/>
+                &nbsp; &nbsp; <a title="I like lightbox" href="img/ratons/raton3.jpg" onclick="$.zoombox.options.theme = 'lightbox';" class="zoombox">Lightbox Theme</a><br/>
+                &nbsp; &nbsp; <a title="I like it simple" href="img/ratons/raton6.jpg" onclick="$.zoombox.options.theme = 'simple';" class="zoombox">Simple Theme</a><br/>
+
+        </ul>
+      </div>
+
+      <a href="https://github.com/Grafikart/Zoombox"><img style="position: absolute; top: 0; left: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_left_red_aa0000.png" alt="Fork me on GitHub"></a>
+
+
+      <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
+      <script type="text/javascript" src="zoombox/zoombox.js"></script>
+      <script type="text/javascript">
+        (function($){
+            $('a.zoombox').zoombox();
+        })(jQuery);
+      </script>
+
+</footer>
+</body>
+</html>
